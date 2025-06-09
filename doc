@@ -1,0 +1,45 @@
+GraphRAG (Graph Retrieval-Augmented Generation)
+GraphRAG is a powerful technique that combines the reasoning capabilities of large language models (LLMs) with the structure and precision of graph databases. It enhances traditional RAG (Retrieval-Augmented Generation) by retrieving information from a knowledge graph instead of plain documents. This is especially useful in domains like fraud detection, recommendation systems, and enterprise search, where entities and their relationships are complex and interconnected.
+
+How it works: User prompts are embedded into vectors, used to search the graph, and then the retrieved subgraphs are passed to an LLM for natural language response generation.
+
+Benefits: Improved context-awareness, explainability, and precision in answers.
+
+🧠 2. Knowledge Graph
+A Knowledge Graph is a structured representation of real-world entities (like people, accounts, transactions) and their relationships. Unlike relational databases, it allows for flexible schema and intuitive querying using graph traversal.
+
+Used in AI for: Relationship inference, semantic search, recommendation, entity resolution.
+
+Example: In fraud detection, a knowledge graph can reveal hidden links between multiple fraudulent accounts using shared addresses or devices.
+
+🎛️ 3. Streamlit
+Streamlit is a Python-based open-source web app framework specifically built for machine learning and data science. It's commonly used to build lightweight, interactive dashboards and AI prototypes with minimal effort.
+
+Why it's useful: Perfect for visualizing graph insights, querying data interactively, and integrating LLMs into user-facing apps.
+
+Example: Build a fraud analysis app that allows analysts to ask questions in natural language and see graph-based results using TigerGraph/Neo4j + OpenAI APIs.
+
+🔁 4. LangChain
+LangChain is a framework for developing applications powered by LLMs, especially those that require external data sources, multi-step reasoning, or tool use.
+
+With graph DBs: LangChain can integrate with graph queries (via Cypher, GSQL, etc.), allowing the LLM to access up-to-date graph data during generation.
+
+Use case: Enable an AI assistant to explain suspicious entity relationships or recommend next steps by calling graph database APIs through LangChain tools.
+
+🕸️ 5. Neo4j
+Neo4j is one of the most widely used graph databases, known for its intuitive Cypher query language and strong ecosystem. It supports storing and querying complex data relationships at scale.
+
+AI integration: Can be used with LLMs via LangChain or custom GraphRAG pipelines.
+
+Best suited for: Knowledge graphs, recommendation engines, fraud rings, supply chain analytics.
+
+Cypher example:
+
+c
+Copy
+Edit
+MATCH (a:Person)-[:TRANSFERRED_TO]->(b:Account)
+WHERE a.name = 'John Doe'
+RETURN b
+
+
