@@ -1,0 +1,61 @@
+
+CREATE VERTEX User (PRIMARY_ID id STRING, name STRING, email STRING, created_date DATETIME, risk_score FLOAT)
+CREATE VERTEX Account (PRIMARY_ID account_id STRING, account_type STRING, balance FLOAT, created_date DATETIME)
+CREATE VERTEX Transaction (PRIMARY_ID txn_id STRING, amount FLOAT, timestamp DATETIME, merchant STRING, location STRING, fraud_score FLOAT)
+CREATE VERTEX Merchant (PRIMARY_ID merchant_id STRING, name STRING, category STRING, location STRING)
+CREATE VERTEX Device (PRIMARY_ID device_id STRING, device_type STRING, ip_address STRING, location STRING)
+
+CREATE UNDIRECTED EDGE OWNS (FROM User, TO Account, relationship_start DATETIME)
+CREATE DIRECTED EDGE PERFORMS (FROM User, TO Transaction, timestamp DATETIME)
+CREATE DIRECTED EDGE PROCESSES (FROM Account, TO Transaction, timestamp DATETIME)
+CREATE DIRECTED EDGE OCCURS_AT (FROM Transaction, TO Merchant, timestamp DATETIME)
+CREATE DIRECTED EDGE USES (FROM User, TO Device, last_used DATETIME)
+CREATE DIRECTED EDGE FROM_DEVICE (FROM Transaction, TO Device, timestamp DATETIME)
+
+CREATE GRAPH FraudDetection (User, Account, Transaction, Merchant, Device, OWNS, PERFORMS, PROCESSES, OCCURS_AT, USES, FROM_DEVICE)
+# Sample TigerGraph schema for fraud detection
+
+# fraud_detection_queries.gsql
+# Sample GSQL queries for fraud detection
+
+# Query to detect rapid successive transactions
+CREATE QUERY detect_rapid_transactions(STRING user_id, INT time_window_minutes = 10, INT min_count = 3) FOR GRAPH FraudDetection {
+    TYPEDEF TUPLE<STRING txn_id, FLOAT amount, DATETIME timestamp> TxnRecord;
+    ListAccum<TxnRecord> @@suspicious_txns;
+    
+    Start = {User.*};
+    
+    Results = SELECT t FROM Start:u -(PERFORMS)- Transaction:t
+              WHERE u.id == user_id 
+              AND datetime_diff(now(), t.timestamp) <= time_window_minutes * 60
+              ACCUM @@suspicious_txns += TxnRecord(t.txn_id, t.amount, t.timestamp);
+    
+    IF @@suspicious_txns.size() >= min_count THEN
+        PRINT @@suspicious_txns;
+    END;
+}
+
+# Query to detect unusual spending patterns
+CREATE QUERY detect_unusual_amounts(STRING user_id, FLOAT threshold_multiplier = 3.0) FOR GRAPH FraudDetection {
+    SumAccum<FLOAT> @@total_amount;
+    SumAccum<INT> @@count;
+    MaxAccum<FLOAT> @@avg_amount;
+    ListAccum<STRING> @@suspicious_txns;
+    
+    Start = {User.*};
+    
+    # Calculate average transaction amount
+    Calc = SELECT t FROM Start:u -(PERFORMS)- Transaction:t
+           WHERE u.id == user_id
+           ACCUM @@total_amount += t.amount, @@count += 1;
+    
+    @@avg_amount = @@total_amount / @@count;
+    
+    # Find transactions above threshold
+    Results = SELECT t FROM Start:u -(PERFORMS)- Transaction:t
+              WHERE u.id == user_id 
+              AND t.amount > @@avg_amount * threshold_multiplier
+              ACCUM @@suspicious_txns += t.txn_id;
+    
+    PRINT @@suspicious_txns, @@avg_amount;
+}
