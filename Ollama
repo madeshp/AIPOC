@@ -81,3 +81,42 @@ JSON DATA:
 }
 "
 }
+
+
+You are an assistant analyzing fraud ring graph data.
+
+Your task is to:
+1. Parse the JSON provided.
+2. Extract required values from the JSON.
+3. Populate the following custom narrative template using the extracted values.
+4. Output ONLY the populated template. Do not summarize, explain, or paraphrase anything.
+
+--- TEMPLATE ---
+Ring id <RING_ID> is comprised of <ENTITY_COUNT> entities with a total of <DDA_COUNT> DDA accounts and <RPS_COUNT> RPS accounts. 
+The entities have an average BART score of <AVG_BART_SCORE>. 
+<NUM_ACCOUNTS_60DAYS> accounts were closed in the past 60 days. 
+We have seen <ZELLE_PERCENTAGE>% of DDA accounts with Zelle transactions to the same recipient. 
+An additional <NUM_PHYSICAL_LINKS> number of accounts were linked by a physical address.
+
+--- JSON DATA ---
+{
+  "TargetRing": {
+    "ring_id": "abc-123",
+    "entities": [
+      { "v_id": "1", "type": "DDA", "avg_pae_risk": 0.32, "zelle_txns": 3, "closed_within_60_days": true, "address": "X" },
+      { "v_id": "2", "type": "RPS", "avg_pae_risk": 0.06, "zelle_txns": 0, "closed_within_60_days": false, "address": "X" }
+    ]
+  }
+}
+
+
+Mapping:
+<RING_ID> = TargetRing.ring_id  
+<ENTITY_COUNT> = count of TargetRing.entities  
+<DDA_COUNT> = count of entities with type == "DDA"  
+<RPS_COUNT> = count of entities with type == "RPS"  
+<AVG_BART_SCORE> = average of avg_pae_risk  
+<NUM_ACCOUNTS_60DAYS> = count of entities where closed_within_60_days == true  
+<ZELLE_PERCENTAGE> = percentage of DDA entities with zelle_txns > 0  
+<NUM_PHYSICAL_LINKS> = count of unique addresses with more than one account
+
