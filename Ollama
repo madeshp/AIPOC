@@ -60,3 +60,24 @@ OUTPUT FORMAT: Return only the completed template with values filled in."
     "repeat_penalty": 1.1
   }
 }'7. Consider Using a Different ModelSome models are better at following structured instructions. Try:llama2:13b or llama2:70b for better instruction followingmistral or mixtral modelscodellama for structured data tasksThe key is being extremely explicit about what you want and providing clear examples of the expected output format.
+
+
+
+{
+  "role": "user",
+  "content": "You are a helpful assistant specialized in analyzing fraud ring data from graph databases. Your task is to fill in the following narrative template using the provided JSON data. 
+Respond strictly in the given format. Do not summarize or paraphrase. Use only the exact template and replace placeholders with actual values.
+
+TEMPLATE:
+Ring id <RING_ID> is comprised of <ENTITY_COUNT> entities with a total of <DDA_COUNT> DDA accounts and <RPS_COUNT> RPS accounts. 
+The entities have an average BART score of <AVG_BART_SCORE>. 
+<NUM_ACCOUNTS_60DAYS> accounts were closed in the past 60 days. 
+We have seen <ZELLE_PERCENTAGE>% of DDA accounts with Zelle transactions to the same recipient. 
+An additional <NUM_PHYSICAL_LINKS> number of accounts were linked by a physical address.
+
+JSON DATA:
+{
+  \"TargetRing\": { ...your actual data... }
+}
+"
+}
