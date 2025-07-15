@@ -210,3 +210,9 @@ Mapping:
     }
   ]
 }
+TEMPLATE:
+Ring id [] is comprised of [] entities with a total of [] DDA accounts and [] RPS accounts. 
+The entities have an average BART score of []. 
+[] accounts were closed in the past 60 days. 
+We have seen []% of DDA accounts with Zelle transactions to the same recipient. 
+An additional [] number of accounts were linked by a physical address.
