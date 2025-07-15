@@ -1,0 +1,62 @@
+Looking at your screenshot, I can see you're trying to get a language model to populate a custom template with graph database JSON data, but it's summarizing instead of following the template format. Here are several strategies to improve your prompt:1. Be More Explicit About Template StructureInstead of describing the template in prose, provide the exact template format:{
+  "role": "user",
+  "content": "Analyze the following JSON data from a graph database and populate this EXACT template format. Do not summarize - fill in the template with actual values from the data.
+
+TEMPLATE TO FILL:
+Ring id [RING_ID] is comprised of [TOTAL_ENTITIES] entities with a total of [DDA_COUNT] DDA accounts and [RPS_COUNT] RPS accounts. The entities have an average BART score of [AVG_BART_SCORE]. Accounts [CLOSED_ACCOUNTS] were closed in the past 60 days. We have seen [PERCENTAGE]% of DDA accounts with Zelle transactions to the same recipient. An additional [LINKED_ACCOUNTS] number of accounts were linked by a physical address.
+
+Graph query results: [JSON_DATA_HERE]"
+}2. Add Specific InstructionsMake your instructions more precise:{
+  "role": "user", 
+  "content": "INSTRUCTIONS:
+1. Extract exact values from the JSON data
+2. Replace placeholders in brackets with actual data values
+3. Do NOT summarize or paraphrase
+4. Use the exact template format provided
+5. If a value is missing, use 'N/A'
+
+TEMPLATE: [your template here]
+DATA: [your JSON data here]"
+}3. Use Few-Shot ExamplesProvide an example of the expected input/output:{
+  "role": "user",
+  "content": "Fill this template with data from the JSON. Here's an example:
+
+EXAMPLE INPUT DATA: {\"ring_id\": \"123\", \"total_entities\": 5, \"dda_accounts\": 10}
+EXAMPLE OUTPUT: Ring id 123 is comprised of 5 entities with a total of 10 DDA accounts...
+
+Now fill the template with this actual data: [your JSON data]"
+}4. Structure Your Prompt BetterTry this format:{
+  "role": "system",
+  "content": "You are a data formatting assistant. Your job is to extract values from JSON data and populate templates exactly as specified. Never summarize or change the template format."
+},
+{
+  "role": "user", 
+  "content": "Extract these specific values from the JSON data:
+- Ring ID
+- Total entities count  
+- DDA accounts count
+- RPS accounts count
+- Average BART score
+- Closed accounts in past 60 days
+- Percentage of DDA accounts with Zelle transactions
+- Number of accounts linked by physical address
+
+Then populate this exact template: [template]
+Using this data: [JSON data]"
+}5. Add Output Format Constraints{
+  "role": "user",
+  "content": "CRITICAL: Your response must be ONLY the filled template. Do not add explanations, summaries, or additional text.
+
+Template: [template]
+Data: [JSON data]
+
+OUTPUT FORMAT: Return only the completed template with values filled in."
+}6. Use Ollama-Specific ParametersWhen calling Ollama, try these parameters:curl -X POST http://localhost:11434/api/generate -d '{
+  "model": "llama2",
+  "prompt": "your prompt here",
+  "options": {
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}'7. Consider Using a Different ModelSome models are better at following structured instructions. Try:llama2:13b or llama2:70b for better instruction followingmistral or mixtral modelscodellama for structured data tasksThe key is being extremely explicit about what you want and providing clear examples of the expected output format.
