@@ -119,4 +119,94 @@ Mapping:
 <NUM_ACCOUNTS_60DAYS> = count of entities where closed_within_60_days == true  
 <ZELLE_PERCENTAGE> = percentage of DDA entities with zelle_txns > 0  
 <NUM_PHYSICAL_LINKS> = count of unique addresses with more than one account
-
+{
+  "Addresses": [
+    {
+      "address": "349 Bay Road WV",
+      "id": "5 Pierstorff Alley",
+      "attributes": {
+        "v_type": "Address"
+      }
+    }
+  ],
+  "Accounts": [
+    {
+      "account_closed_date": "2999-12-31 00:00:00",
+      "account_type": "ELN 03",
+      "id": "5446967305664010",
+      "attributes": {
+        "account_closed": "2005-01-01 00:00:00",
+        "account_number": "9882106479631851",
+        "v_type": "ALS_06"
+      }
+    }
+  ],
+  "Emails": [
+    {
+      "id": "tmcgookch@boston.com",
+      "attributes": {
+        "v_type": "Email"
+      }
+    }
+  ],
+  "PAEEntities": [
+    {
+      "id": "pae230969030684738970953",
+      "attributes": {
+        "v_type": "PAEEntity"
+      }
+    },
+    {
+      "id": "pae41009644836022264810",
+      "attributes": {
+        "v_type": "PAEEntity"
+      }
+    },
+    {
+      "id": "pe54694503327401680611",
+      "attributes": {
+        "v_type": "PAEEntity"
+      }
+    },
+    {
+      "id": "pe741164438775829349681",
+      "attributes": {
+        "v_type": "PAEEntity"
+      }
+    }
+  ],
+  "Phones": [
+    {
+      "id": "8822265831",
+      "attributes": {
+        "v_type": "Phone",
+        "phone_number": "8822265831"
+      }
+    },
+    {
+      "id": "4198782236",
+      "attributes": {
+        "v_type": "Phone",
+        "phone_number": "4198782236"
+      }
+    }
+  ],
+  "TargetRing": [
+    {
+      "id": "2025051105044_6305d90d_4921-11ec-7257-4976104514",
+      "attributes": {
+        "avg_pae_risk": "low"
+      }
+    }
+  ],
+  "ZelleTokenWithSenderCount": [
+    {
+      "id": "tmcgookch@boston.com",
+      "attributes": {
+        "v_type": "ZelleToken",
+        "zelleToken": "8822265831",
+        "sender_count": 2
+      }
+    }
+  ]
+}
