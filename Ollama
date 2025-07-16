@@ -216,3 +216,208 @@ The entities have an average BART score of [].
 [] accounts were closed in the past 60 days. 
 We have seen []% of DDA accounts with Zelle transactions to the same recipient. 
 An additional [] number of accounts were linked by a physical address.
+
+
+{
+  "response": [
+    {
+      "v_id": "202305150850044_63059d08-b442-109815ee7257_4967104514",
+      "v_type": "exp_community_ring",
+      "attributes": {
+        "avg_pae_risk": 0.1921
+      },
+      "PEEntities": [
+        {
+          "v_id": "pe594649053324740168611",
+          "v_type": "PEEntity",
+          "attributes": {
+            "peEntity": "pe594649053324740168611"
+          }
+        },
+        {
+          "v_id": "pe204594803884087288813",
+          "v_type": "PEEntity",
+          "attributes": {
+            "peEntity": "pe204594803884087288813"
+          }
+        },
+        {
+          "v_id": "pe251917087735259949269",
+          "v_type": "PEEntity",
+          "attributes": {
+            "peEntity": "pe251917087735259949269"
+          }
+        },
+        {
+          "v_id": "pe236098607805320129353",
+          "v_type": "PEEntity",
+          "attributes": {
+            "peEntity": "pe236098607805320129353"
+          }
+        }
+      ],
+      "PAEEntities": [
+        {
+          "v_id": "pae169194048193632204",
+          "v_type": "PAEEntity",
+          "attributes": {
+            "paeEntity": "pae169194048193632204"
+          }
+        },
+        {
+          "v_id": "pae159795912124972091",
+          "v_type": "PAEEntity",
+          "attributes": {
+            "paeEntity": "pae159795912124972091"
+          }
+        },
+        {
+          "v_id": "pae94101620678207548975",
+          "v_type": "PAEEntity",
+          "attributes": {
+            "paeEntity": "pae94101620678207548975"
+          }
+        },
+        {
+          "v_id": "pae59876113822543773115",
+          "v_type": "PAEEntity",
+          "attributes": {
+            "paeEntity": "pae59876113822543773115"
+          }
+        }
+      ],
+      "ALAccounts": [
+        {
+          "v_id": "988210647693185",
+          "v_type": "Account",
+          "attributes": {
+            "account_close_date": "2005-05-05 00:00:00",
+            "account_number": "988210647693185",
+            "account_type": "AL_S_06"
+          }
+        },
+        {
+          "v_id": "31520819449210291",
+          "v_type": "Account",
+          "attributes": {
+            "account_close_date": "1999-12-31 00:00:00",
+            "account_number": "31520819449210291",
+            "account_type": "DDA_01"
+          }
+        },
+        {
+          "v_id": "31520819449210290",
+          "v_type": "Account",
+          "attributes": {
+            "account_close_date": "1999-12-31 00:00:00",
+            "account_number": "31520819449210290",
+            "account_type": "AL_S_06"
+          }
+        }
+      ],
+      "ClosedAccounts": [
+        {
+          "v_id": "31519620007",
+          "v_type": "Account",
+          "attributes": {
+            "account_closed_date": "2002-09-30 00:00:00"
+          }
+        }
+      ],
+      "Addresses": [
+        {
+          "v_id": "5 Pierstoff Alley NY",
+          "v_type": "Address",
+          "attributes": {
+            "address": "5 Pierstoff Alley NY"
+          }
+        },
+        {
+          "v_id": "587 Kinsman Road WA",
+          "v_type": "Address",
+          "attributes": {
+            "address": "587 Kinsman Road WA"
+          }
+        },
+        {
+          "v_id": "3 Beifluss Terrace FL",
+          "v_type": "Address",
+          "attributes": {
+            "address": "3 Beifluss Terrace FL"
+          }
+        },
+        {
+          "v_id": "7 Ramsey Trail KY",
+          "v_type": "Address",
+          "attributes": {
+            "address": "7 Ramsey Trail KY"
+          }
+        }
+      ],
+      "TINs": [
+        {
+          "v_id": "32aa6dfd599f413c9d7d9db43021",
+          "v_type": "TIN",
+          "attributes": {
+            "taxid": "32aa6dfd599f413c9d7d9db43021"
+          }
+        },
+        {
+          "v_id": "9d9b39104a57a8a3a7bcf30287899cd",
+          "v_type": "TIN",
+          "attributes": {
+            "taxid": "9d9b39104a57a8a3a7bcf30287899cd"
+          }
+        },
+        {
+          "v_id": "2a6b267728aa1816c33f9965559ca08de4c5f7",
+          "v_type": "TIN",
+          "attributes": {
+            "taxid": "2a6b267728aa1816c33f9965559ca08de4c5f7"
+          }
+        }
+      ],
+      "Phones": [
+        {
+          "v_id": "8822265381",
+          "v_type": "Phone",
+          "attributes": {
+            "phone": "8822265381"
+          }
+        },
+        {
+          "v_id": "9995195005",
+          "v_type": "Phone",
+          "attributes": {
+            "phone": "9995195005"
+          }
+        }
+      ],
+      "Emails": [
+        {
+          "v_id": "tmcgocch@boston.com",
+          "v_type": "Email",
+          "attributes": {
+            "email": "tmcgocch@boston.com"
+          }
+        }
+      ],
+      "ZelleTokenWithSenderCount": [
+        {
+          "v_id": "tmcgocch@boston.com",
+          "v_type": "ZelleToken",
+          "attributes": {
+            "sender_count": 2
+          }
+        },
+        {
+          "v_id": "8822265381",
+          "v_type": "ZelleToken",
+          "attributes": {
+            "sender_count": 1
+          }
+        }
+      ]
+    }
+  ]
+}
