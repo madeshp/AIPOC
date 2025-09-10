@@ -1,0 +1,167 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#2c3e50">BART System Architecture with RAG Integration</text>
+  
+  <!-- Define arrow marker -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50" />
+    </marker>
+  </defs>
+  
+  <!-- User/Actor -->
+  <g id="user">
+    <circle cx="100" cy="150" r="20" fill="#ff9999" stroke="#cc6666" stroke-width="2"/>
+    <line x1="100" y1="170" x2="100" y2="190" stroke="#cc6666" stroke-width="2"/>
+    <line x1="90" y1="180" x2="110" y2="180" stroke="#cc6666" stroke-width="2"/>
+    <line x1="100" y1="190" x2="90" y2="210" stroke="#cc6666" stroke-width="2"/>
+    <line x1="100" y1="190" x2="110" y2="210" stroke="#cc6666" stroke-width="2"/>
+    <text x="100" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#2c3e50">User</text>
+  </g>
+  
+  <!-- Step 1: BART Chat UI -->
+  <rect x="200" y="100" width="140" height="100" fill="#4a90e2" stroke="#357abd" stroke-width="2" rx="8"/>
+  <text x="270" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">BART Chat UI</text>
+  <text x="270" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Session Creation</text>
+  <text x="270" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Question Input</text>
+  <text x="270" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• User Interface</text>
+  
+  <!-- Step 2: BART API with RAG -->
+  <rect x="400" y="100" width="140" height="100" fill="#50c878" stroke="#3a9b5c" stroke-width="2" rx="8"/>
+  <text x="470" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">BART API</text>
+  <text x="470" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Python Backend</text>
+  <text x="470" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• RAG Solution</text>
+  <text x="470" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• API Processing</text>
+  
+  <!-- Step 3: OpenAI Context -->
+  <rect x="600" y="100" width="140" height="100" fill="#ff6b6b" stroke="#e55555" stroke-width="2" rx="8"/>
+  <text x="670" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">OpenAI API</text>
+  <text x="670" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Context Analysis</text>
+  <text x="670" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Intent Detection</text>
+  <text x="670" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Query Processing</text>
+  
+  <!-- Step 4: TigerGraph Database -->
+  <ellipse cx="470" cy="320" rx="70" ry="45" fill="#ff8c42" stroke="#d4692a" stroke-width="2"/>
+  <ellipse cx="470" cy="310" rx="70" ry="8" fill="#ffb380" stroke="#d4692a" stroke-width="2"/>
+  <text x="470" y="325" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">TigerGraph</text>
+  <text x="470" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">Graph Database</text>
+  <text x="470" y="355" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">Context Retrieval</text>
+  
+  <!-- Step 5: OpenAI NLP -->
+  <rect x="600" y="270" width="140" height="100" fill="#9b59b6" stroke="#8e44ad" stroke-width="2" rx="8"/>
+  <text x="670" y="295" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">OpenAI API</text>
+  <text x="670" y="315" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• NLP Processing</text>
+  <text x="670" y="330" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Response Gen</text>
+  <text x="670" y="345" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Language Model</text>
+  
+  <!-- Step 6: Chroma Vector Database -->
+  <rect x="400" y="450" width="140" height="100" fill="#3498db" stroke="#2980b9" stroke-width="2" rx="8"/>
+  <text x="470" y="475" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Chroma Vector</text>
+  <text x="470" y="495" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Local Database</text>
+  <text x="470" y="510" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Embeddings</text>
+  <text x="470" y="525" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Vector Storage</text>
+  
+  <!-- Step 7: Suggestions API -->
+  <rect x="200" y="450" width="140" height="100" fill="#f39c12" stroke="#e67e22" stroke-width="2" rx="8"/>
+  <text x="270" y="475" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Suggestions</text>
+  <text x="270" y="495" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• API Call</text>
+  <text x="270" y="510" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Recommendations</text>
+  <text x="270" y="525" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Smart Suggestions</text>
+  
+  <!-- Step 8: Final Response -->
+  <rect x="50" y="620" width="140" height="80" fill="#27ae60" stroke="#229954" stroke-width="2" rx="8"/>
+  <text x="120" y="645" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Final Response</text>
+  <text x="120" y="665" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• Complete Results</text>
+  <text x="120" y="680" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">• User Output</text>
+  
+  <!-- Flow Arrows with Labels -->
+  <!-- 1. User to BART UI -->
+  <line x1="130" y1="150" x2="190" y2="150" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="160" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#2c3e50">1. Question</text>
+  
+  <!-- 2. BART UI to API -->
+  <line x1="340" y1="150" x2="390" y2="150" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="365" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#2c3e50">2. API Call</text>
+  
+  <!-- 3. API to OpenAI Context -->
+  <line x1="540" y1="150" x2="590" y2="150" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="565" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#2c3e50">3. Context</text>
+  
+  <!-- 4. API to TigerGraph -->
+  <line x1="470" y1="200" x2="470" y2="265" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="490" y="232" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#2c3e50">4. Query Graph</text>
+  
+  <!-- 5. TigerGraph to OpenAI NLP -->
+  <line x1="540" y1="320" x2="590" y2="320" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="565" y="310" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#2c3e50">5. NLP Process</text>
+  
+  <!-- 6. Back to Vector DB -->
+  <line x1="470" y1="370" x2="470" y2="440" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="490" y="405" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#2c3e50">6. Store</text>
+  <text x="490" y="420" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#2c3e50">Embeddings</text>
+  
+  <!-- 7. Vector DB to Suggestions -->
+  <line x1="400" y1="500" x2="350" y2="500" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="375" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#2c3e50">7. Suggestions</text>
+  
+  <!-- 8. Suggestions to Final Response -->
+  <line x1="200" y1="500" x2="170" y2="500" stroke="#2c3e50" stroke-width="2"/>
+  <line x1="170" y1="500" x2="120" y2="610" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="145" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#2c3e50">8. Final</text>
+  <text x="145" y="565" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#2c3e50">Response</text>
+  
+  <!-- Return path to user -->
+  <path d="M 50 660 Q 30 500 30 300 Q 30 200 80 180" stroke="#27ae60" stroke-width="2" fill="none" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
+  
+  <!-- Process Flow Documentation -->
+  <rect x="850" y="100" width="300" height="450" fill="white" stroke="#bdc3c7" stroke-width="2" rx="8"/>
+  <text x="1000" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c3e50">System Flow Process</text>
+  
+  <text x="860" y="155" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#e74c3c">Step 1:</text>
+  <text x="910" y="155" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">User asks question via BART Chat UI</text>
+  <text x="870" y="170" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">Creates new session and captures input</text>
+  
+  <text x="860" y="195" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#e74c3c">Step 2:</text>
+  <text x="910" y="195" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">UI makes API call to BART API</text>
+  <text x="870" y="210" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">Python backend with RAG solution</text>
+  
+  <text x="860" y="235" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#e74c3c">Step 3:</text>
+  <text x="910" y="235" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">OpenAI determines context</text>
+  <text x="870" y="250" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">Analyzes intent and query requirements</text>
+  
+  <text x="860" y="275" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#e74c3c">Step 4:</text>
+  <text x="910" y="275" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">TigerGraph provides context</text>
+  <text x="870" y="290" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">Retrieves relevant graph data</text>
+  
+  <text x="860" y="315" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#e74c3c">Step 5:</text>
+  <text x="910" y="315" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">OpenAI NLP processing</text>
+  <text x="870" y="330" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">Natural language understanding & generation</text>
+  
+  <text x="860" y="355" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#e74c3c">Step 6:</text>
+  <text x="910" y="355" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">Store embeddings in Chroma</text>
+  <text x="870" y="370" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">Vector database for future retrieval</text>
+  
+  <text x="860" y="395" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#e74c3c">Step 7:</text>
+  <text x="910" y="395" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">Generate suggestions</text>
+  <text x="870" y="410" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">Smart recommendations for user</text>
+  
+  <text x="860" y="435" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#e74c3c">Step 8:</text>
+  <text x="910" y="435" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">Return final response</text>
+  <text x="870" y="450" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">Complete results delivered to user</text>
+  
+  <!-- Technology Stack Info -->
+  <rect x="850" y="570" width="300" height="150" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2" rx="8"/>
+  <text x="1000" y="590" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#2c3e50">Technology Stack</text>
+  
+  <text x="860" y="610" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">• Frontend: BART Chat UI</text>
+  <text x="860" y="625" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">• Backend: Python with RAG</text>
+  <text x="860" y="640" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">• AI/ML: OpenAI API</text>
+  <text x="860" y="655" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">• Graph DB: TigerGraph</text>
+  <text x="860" y="670" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">• Vector DB: Chroma</text>
+  <text x="860" y="685" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">• Architecture: RAG Pattern</text>
+  <text x="860" y="700" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">• Session Management: Stateful</text>
+</svg>
