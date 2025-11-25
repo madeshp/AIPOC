@@ -1,0 +1,16 @@
+CREATE QUERY get_emails_mult_comm_rings() FOR GRAPH MyGraph {
+  /*
+    Goal: Fetch Email IDs connected to exp_user_ring which is connected to more than two different exp_community_rings.
+    Schema Path: Email -(email_to_user)-> exp_user_ring -(exp_user_ring_to_exp_community_ring)-> exp_community_ring
+  */
+
+  // Start with all Email nodes
+  Seed = {Email.*};
+
+  // Select Emails that are connected to an exp_user_ring which has > 2 connections to exp_community_ring
+  Result = SELECT s
+           FROM Seed:s -(email_to_user)-> exp_user_ring:t
+           WHERE t.outdegree("exp_user_ring_to_exp_community_ring") > 2;
+
+  PRINT Result;
+}
