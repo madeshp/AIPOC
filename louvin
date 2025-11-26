@@ -1,0 +1,20 @@
+Strategy 3: The "Case Management" Vertex Layer
+If you must stick with Louvain and the IDs are volatile, you need to decouple the Analysis Object from the Graph Cluster.
+
+Do not give the Analyst the exp_community_ring UUID. Instead, introduce a new Vertex type called Case.
+
+Create Case Vertex: This represents the investigation. It has a static ID (e.g., CASE-001).
+
+Linkage:
+
+Day 1: Louvain creates Ring_Alpha. You link Ring_Alpha -> Case_001.
+
+Day 2: Louvain runs, Ring_Alpha dissolves, and Ring_Beta is formed (which contains most of the same data).
+
+The Logic:
+
+After the Louvain run, identify which Case the majority of the nodes in the new ring belonged to previously.
+
+Update the edge: Delete Ring_Alpha -> Case_001 and insert Ring_Beta -> Case_001.
+
+Benefit: The Analyst opens Case_001 every day. On the backend, you swap out which graph cluster is currently attached to it. The Analyst sees the data change, but their "Bucket" (The Case ID) remains the same.
