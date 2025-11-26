@@ -18,3 +18,48 @@ After the Louvain run, identify which Case the majority of the nodes in the new 
 Update the edge: Delete Ring_Alpha -> Case_001 and insert Ring_Beta -> Case_001.
 
 Benefit: The Analyst opens Case_001 every day. On the backend, you swap out which graph cluster is currently attached to it. The Analyst sees the data change, but their "Bucket" (The Case ID) remains the same.
+
+
+
+The Solution: Persistent Identity (PID) Propagation
+The core philosophy is: "The Community ID follows the Center of Gravity."
+
+In standard Louvain, the algorithm generates a new random ID every time. In PID Propagation, you force the new ring to inherit the ID of the most significant members from the previous day.
+
+How it works (The Logic)
+Instead of simply accepting the new Louvain ID, you run a post-processing "voting" step within the graph.
+
+The Setup:
+
+Add a persistent attribute to your PEEntity vertices called stable_ring_id.
+
+This ID is never deleted when you reload data; it is only updated.
+
+The Daily Process:
+
+Step A: Load & Link: Load your new data (Day 2).
+
+Step B: Run Louvain: Run the algorithm. It generates a temporary attribute on the nodes: temp_louvain_id.
+
+Step C: The "Vote" (The Magic Step):
+
+Group all PEEntity nodes by their new temp_louvain_id.
+
+Inside each group, look at the stable_ring_id from yesterday.
+
+Majority Rules: If 5 nodes have stable_ring_id = A and 2 nodes have stable_ring_id = B, the "Center of Gravity" is A.
+
+Update: Overwrite the stable_ring_id for all nodes in this group to A.
+
+The Result:
+
+Even though Louvain calculated a "new" cluster, the ID remains A.
+
+The Analyst refreshes their screen. The Ring ID is still A. New nodes have simply joined Ring A.
+
+Why is this the "Best" Solution?
+Analyst Trust: The ID acts like a "Golden Record." It doesn't flicker.
+
+Handling Merges: If Ring A (100 nodes) merges with Ring B (5 nodes), the logic automatically assigns ID "A" to the whole group because A has more votes. This mathematically respects the larger investigation.
+
+Handling Splits: If Ring A splits into a big chunk (90 nodes) and a small chunk (10 nodes), the big chunk keeps ID "A". The small chunk (having no dominant majority or seeing itself as a minority) can spawn a new ID "C".
