@@ -73,3 +73,470 @@ You don't just delete and run. You treat the previous day's data as a "Template"
 
 
 Our fraud graph uses the Louvain community detection algorithm to generate exp_community_ring IDs based on shared PII nodes (email, phone, TIN). Analysts rely on these ring IDs as stable identifiers for ongoing investigations. However, during the next day’s data load, changes in PII-to-entity connections cause Louvain to produce different communities, resulting in new community ring IDs. This daily fluctuation breaks continuity, prevents analysts from tracking previous investigations, and leads to inconsistent cluster identification — a challenge known as Community ID Drift.
+
+
+
+
+
+1----------------
+
+You can achieve the “Case” pattern by adding one more vertex type and one relationship to your existing schema, and then rewiring only that new relationship after each Louvain run.​
+
+Below is how it fits with your current model.
+
+Current schema recap
+From your description:
+
+exp_user_ring → exp_community_ring (user belongs to a community ring)
+
+exp_user_ring → PII nodes (Phone, Email, etc.)
+
+exp_community_ring → PE_Entity
+
+Louvain is effectively creating or updating exp_community_ring (or at least its IDs/labels).​
+
+Add the Case layer
+Introduce a new vertex:
+
+Case (static, analyst-facing ID like CASE-001)
+
+Add one relationship type:
+
+(:Case)-[:FOCUSES_ON]->(:exp_community_ring)
+
+Do not expose exp_community_ring.id to the analyst; only expose Case.case_id. The analyst always opens CASE-001; the backend resolves which exp_community_ring is currently linked.
+
+So the full pattern becomes:
+
+exp_user_ring → PII (Phone, Email, etc.)
+
+exp_user_ring → exp_community_ring
+
+exp_community_ring → PE_Entity
+
+Case → exp_community_ring (new)
+
+Day 1 example on your schema
+Louvain run produces communities and you have rings: Ring_101, Ring_102, etc.​
+
+Some exp_user_ring nodes point to Ring_101.
+
+Analyst starts an investigation on that ring:
+
+Create (:Case {case_id: 'CASE-001'}).
+
+Create (:Case {case_id: 'CASE-001'})-[:FOCUSES_ON]->(:exp_community_ring {id:'Ring_101'}).
+
+Now when the analyst opens CASE-001, backend does:
+
+Find the ring:
+
+MATCH (c:Case {case_id:'CASE-001'})-[:FOCUSES_ON]->(r:exp_community_ring)
+
+Expand out to everything else:
+
+Users: (u:exp_user_ring)-[:BELONGS_TO]->(r)
+
+PII: (u)-[:HAS_PHONE|HAS_EMAIL]->(p)
+
+Entities: (r)-[:LINKS_TO]->(e:PE_Entity)
+
+So the analyst sees: all users, all PII, all PE_Entity associated with that community, but anchored by CASE-001, not by ring ID.
+
+Day 2: rings change, Case stays
+After a new Louvain run, suppose:
+
+Old Ring_101 effectively “dies”.
+
+New rings: Ring_201, Ring_202, etc.
+
+Most of the users that were in Ring_101 are now in Ring_201.
+
+Algorithm to rewire CASE-001:
+
+Collect members of the old ring for CASE-001:
+
+Get u_old = { all exp_user_ring that pointed to Ring_101 }.
+
+For each new ring R_new (Ring_201, Ring_202, …), get its members u_new.
+
+Compute overlap:
+
+overlap(R_new) = |u_old ∩ u_new|. ​
+
+Take R_best = ring with max overlap and above a threshold (e.g., overlap ≥ 60% of u_old).
+
+Update just the Case edge:
+
+Delete (:Case {CASE-001})-[:FOCUSES_ON]->(:exp_community_ring {Ring_101}).
+
+Create (:Case {CASE-001})-[:FOCUSES_ON]->(:exp_community_ring {Ring_201}).
+
+You do not touch:
+
+exp_user_ring → PII
+
+exp_community_ring → PE_Entity
+
+Those are regenerated/relinked by your Louvain pipeline as usual; only the Case → exp_community_ring pointer is swapped to the “best matching” new ring.
+
+Why this avoids ring ID collision
+exp_community_ring IDs can change every run, even be completely dropped and recreated, because the analyst never bookmarks them.​
+
+The analyst’s stable anchor is Case.case_id.
+
+After each Louvain run, backend recomputes “which new ring best represents this Case?” using user overlap, and re-attaches the Case to that ring.
+
+2-----
+
+Core idea: “The Ring ID follows the Center of Gravity”
+Instead of letting Louvain assign a fresh, random community ID every day, you:
+
+Keep a stable ring ID on each PE_Entity (or exp_user_ring) that survives reloads.​
+
+After each Louvain run, you vote inside each new cluster: “Which stable ring ID do most of the nodes already have?”
+
+You then overwrite the stable ring ID of all nodes in that cluster with the winning ID (the “center of gravity”).
+
+From the analyst’s view, the ring ID doesn’t flicker; it just grows or shrinks as nodes join/leave.​
+
+Step 1: Add the stable ring ID attribute
+On your main entity node (whichever is the “core” node Louvain runs on), add a persistent attribute:
+
+On PE_Entity (or exp_user_ring, if that’s Louvain’s node):
+
+Add a property: stable_ring_id (e.g., RING-A, RING-B, RING-C).​
+
+This stable_ring_id:
+
+Is never deleted when you reload data (unlike Louvain’s temporary community ID).
+
+Is only updated by the PID propagation logic after each Louvain run.
+
+Example:
+
+text
+// Example node (PE_Entity)
+(:PE_Entity {
+  entity_id: 'E123',
+  stable_ring_id: 'RING-A'  // This is the PID
+})
+Step 2: Daily pipeline with PID propagation
+Step A: Load & Link (Day 2)
+Load new data (new exp_user_ring, new PII, new PE_Entity, etc.).​
+
+Link them as usual:
+
+exp_user_ring → exp_community_ring (temporary, from Louvain)
+
+exp_user_ring → PII (Phone, Email, etc.)
+
+exp_community_ring → PE_Entity
+
+At this point, new nodes have stable_ring_id: null (or some default like NEW), and old nodes still have their old stable_ring_id (e.g., RING-A).​
+
+Step B: Run Louvain
+Run Louvain on your graph (on exp_user_ring or PE_Entity, depending on your model).​
+
+Louvain outputs a temporary community ID on each node:
+
+Add a temporary property: temp_louvain_id (e.g., TEMP-101, TEMP-102, …).
+
+Now each node has:
+
+text
+(:PE_Entity {
+  entity_id: 'E123',
+  stable_ring_id: 'RING-A',
+  temp_louvain_id: 'TEMP-101'
+})
+Step C: The “Vote” (PID Propagation)
+This is the “magic” step that makes ring IDs stable.​
+
+1. Group by new Louvain cluster
+For each new cluster (each temp_louvain_id), collect all its nodes and their old stable_ring_id.​
+
+Example for temp_louvain_id = TEMP-101:
+
+Node	stable_ring_id
+E123	RING-A
+E456	RING-A
+E789	RING-A
+E101	RING-B
+E202	RING-B
+2. Count votes per stable_ring_id
+Inside this cluster, count how many nodes had each stable_ring_id:
+
+RING-A: 3 votes
+
+RING-B: 2 votes
+
+The majority (center of gravity) is RING-A.​
+
+3. Update stable_ring_id for the whole cluster
+Overwrite stable_ring_id for all nodes in this cluster to the winning ID:
+
+text
+// Pseudocode
+UPDATE PE_Entity
+SET stable_ring_id = 'RING-A'
+WHERE temp_louvain_id = 'TEMP-101'
+Now all 5 nodes in TEMP-101 have stable_ring_id = 'RING-A'.​
+
+Repeat this for every temp_louvain_id cluster.
+
+Step 3: How this handles real-world cases
+Case 1: Ring A absorbs Ring B (Merge)
+Old:
+
+Ring A: 100 nodes with stable_ring_id = 'RING-A'
+
+Ring B: 5 nodes with stable_ring_id = 'RING-B'
+
+New Louvain cluster: one big cluster with 105 nodes (A + B).
+
+Vote inside this cluster:
+
+100 votes for RING-A
+
+5 votes for RING-B
+
+Winner: RING-A
+
+Result: all 105 nodes now have stable_ring_id = 'RING-A'
+
+Analyst sees: “Ring A” still exists, and now it has 105 members instead of 100.​
+
+Case 2: Ring A splits into big and small chunks
+Old: Ring A (100 nodes, stable_ring_id = 'RING-A')
+
+New Louvain:
+
+Cluster 1: 90 nodes (mostly from old Ring A)
+
+Cluster 2: 10 nodes (minority from old Ring A)
+
+Cluster 1 (90 nodes):
+
+90 votes for RING-A → winner is RING-A
+
+All 90 nodes keep stable_ring_id = 'RING-A'
+
+Cluster 2 (10 nodes):
+
+10 votes for RING-A, no other ID dominates
+
+Decision rule:
+
+If a threshold is met (e.g., ≥ 60% of cluster votes for one ID), keep that ID.
+
+Else, assign a new stable ring ID (e.g., RING-C).
+
+So Cluster 2 might become RING-C.​
+
+Analyst sees:
+
+Ring A still exists (the big chunk).
+
+A new ring (Ring C) appears for the small split-off group.
+
+Case 3: New ring (no dominant old ID)
+New cluster with 50 nodes:
+
+20 from old Ring A
+
+20 from old Ring B
+
+10 new nodes (no old stable_ring_id)
+
+Vote: no clear majority (20 vs 20).
+
+Decision: assign a new stable ring ID (e.g., RING-D).
+
+Analyst sees: a new ring RING-D appears.​
+
+Step 4: How the analyst uses it
+The analyst never sees temp_louvain_id or the raw Louvain cluster ID.​
+
+Instead, they always query by stable_ring_id:
+
+text
+// Analyst query: "Show me everything in RING-A"
+MATCH (e:PE_Entity {stable_ring_id: 'RING-A'})
+OPTIONAL MATCH (e)-[:LINKS_TO]->(ring:exp_community_ring)
+OPTIONAL MATCH (ring)<-[:BELONGS_TO]-(user:exp_user_ring)
+OPTIONAL MATCH (user)-[:HAS_PHONE|HAS_EMAIL]->(pii)
+RETURN e, ring, user, collect(pii) AS pii_list
+Result:
+
+The analyst always sees RING-A as the same “golden record.”
+
+Behind the scenes, the nodes in RING-A may have changed (new members joined, some left), but the ID stays stable.​
+
+Why this is the “best” solution for your use case
+No ring ID collision: Louvain can assign any temp_louvain_id you want; the analyst only sees the stable stable_ring_id.​
+
+Analyst trust: The ring ID doesn’t flicker; it behaves like a persistent case or investigation.
+
+Merges & splits handled naturally: The majority vote automatically preserves the “main” ring and spawns new IDs only when a minority chunk is truly distinct.
+
+Works with your schema: You keep exp_community_ring, exp_user_ring, PII, and PE_Entity as-is; you just add stable_ring_id and a post‑Louvain voting step.​
+
+If you share which graph DB (Neo4j, TigerGraph, etc.) and which language (Cypher, GSQL, etc.) you use, a concrete code template for the voting step can be written for your stack
+
+
+
+
+3-------
+
+Step 1: Snapshot PEEntity → Old Ring ID
+Just before you wipe exp_community_ring, take a minimal snapshot of yesterday’s community intelligence.
+
+Data to export (example):
+
+PE_Entity_id
+
+old_ring_id (yesterday’s exp_community_ring UUID or some stable_ring_id)
+
+Conceptually:
+
+Query: “For each PE_Entity, which ring was it in yesterday?”
+
+Store the result into:
+
+A staging table in your warehouse (fraud_pe_entity_ring_snapshot), or
+
+A flat file (CSV/Parquet) keyed by PE_Entity_id.
+
+Example snapshot table:
+
+PE_Entity_id	old_ring_id
+E1	RING_123
+E2	RING_123
+E3	RING_456
+This is your “template” of yesterday’s world.
+
+Step 2: Nuclear Wipe and Fresh Load
+Now completely reset the Louvain side of the graph.
+
+Delete:
+
+All exp_community_ring nodes and their edges (to exp_user_ring, PE_Entity, etc.).
+
+Load today’s fresh transactional data:
+
+New exp_user_ring
+
+PII nodes / edges (phone, email, TIN)
+
+PE_Entity
+
+Benefit: The graph has no stale or dangling community edges; Louvain will see a clean snapshot of today’s reality.​
+
+Step 3: Run Louvain to Create New Rings
+Run Louvain again on today’s graph (likely on exp_user_ring or PE_Entity, depending on your model).​
+
+Louvain generates new community IDs (e.g., Ring_X, Ring_Y) and you materialize them as new exp_community_ring nodes.
+
+Also create / maintain:
+
+exp_user_ring → exp_community_ring edges
+
+exp_community_ring → PE_Entity edges
+
+At this moment, all community IDs are “fresh” and have no continuity relation to yesterday’s IDs.
+
+Step 4: Restore Old IDs by Overlap (“Rename” Rings)
+Now you reuse the snapshot to give each new ring the old ID whose members it mostly inherited.
+
+4.1 Compute overlap per new ring
+For each new exp_community_ring (say Ring_X):
+
+Collect its member PE_Entity IDs:
+
+From today’s graph: Ring_X → PE_Entity list.
+
+Join this list with your snapshot (Step 1) on PE_Entity_id:
+
+For each PE_Entity in Ring_X, look up old_ring_id from yesterday.
+
+Count how many entities in Ring_X came from each old_ring_id.
+
+Example:
+
+Today’s Ring_X has entities: {E1, E2, E3, E4}
+
+Snapshot:
+
+E1 → RING_123
+
+E2 → RING_123
+
+E3 → RING_123
+
+E4 → RING_789
+
+Vote counts for Ring_X:
+
+RING_123: 3
+
+RING_789: 1
+
+So the “best matching” old ring ID for Ring_X is RING_123.
+
+4.2 Decide: reuse or create new ID
+For each new ring:
+
+If one old_ring_id has a strong majority (e.g., ≥ 60–70% of this new ring’s members), reuse that ID.
+
+Example: Ring_X → rename to RING_123.
+
+If there is no clear majority (e.g., heavily mixed from many old rings or a lot of brand‑new entities), assign a new ID.
+
+Example: Ring_Y → keep its new UUID or assign RING_NEW_001.
+
+4.3 Apply the rename
+You have two options depending on your implementation:
+
+Option A (preferred conceptually):
+
+Treat ring_id as a property on exp_community_ring.
+
+Set exp_community_ring.ring_id = reused_old_id_or_new_id.
+
+Option B:
+
+If you truly use the node UUID as the community ID, you can:
+
+Either store the “business ID” as a separate property (business_ring_id) used in the UI, or
+
+Recreate the exp_community_ring nodes with the desired IDs and rewire edges (heavier but conceptually same).
+
+From the analyst’s perspective:
+
+Yesterday they saw RING_123.
+
+Today, RING_123 still exists, but its membership is slightly changed because the world changed.
+
+Community ID drift is drastically reduced: the “name” of the ring is carried forward to the new cluster that best matches yesterday’s ring.​
+
+Why this fits your fraud graph and when to use it
+Works directly with your model:
+
+Louvain over shared PII on exp_user_ring / PE_Entity → exp_community_ring rings.​
+
+The snapshot is just PE_Entity → old ring ID; no schema change needed.
+
+Strong benefits:
+
+Zero complex incremental logic; every day is “delete, rebuild, then restore names.”
+
+Self‑healing if yesterday’s graph was corrupted, because you recompute everything from scratch.
+
+Trade‑offs:
+
+During the reload and Louvain run, the community layer is “offline” for analysts.
+
+For very large graphs, full rebuild + overlap join can be computationally heavy.​
+
+But conceptually it gives your analysts what they want: ring labels that are stable over time, even though the underlying Louvain communities are recomputed from scratch each day.
