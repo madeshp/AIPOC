@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Relationship Manager · Banking Agents Prototype</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f3f1ec;--panel:#fff;--ink:#14213d;--mut:#5d6679;--line:#dcd8cf;--acc:#e08a00;--accbg:#fff3d9;--ok:#1b7f5a;--okbg:#dff3ea;--bad:#b3261e;--badbg:#fbe3e1;--wait:#8a5a00;--waitbg:#fff0c9;--bot:#eef1f7;--usr:#14213d;--usrt:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1424;--panel:#172038;--ink:#e8ecf6;--mut:#9aa5bd;--line:#2a3555;--acc:#ffb338;--accbg:#3a2c0d;--ok:#4cd39b;--okbg:#12352a;--bad:#ff8a80;--badbg:#431a18;--wait:#ffc95c;--waitbg:#3a2c0d;--bot:#202b48;--usr:#ffb338;--usrt:#14213d}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Instrument Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:8px}
+button:hover{border-color:var(--acc)}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+button.p{background:var(--ink);color:var(--bg);border-color:var(--ink)}button.ok{background:var(--ok);color:#fff;border-color:var(--ok)}button.no{color:var(--bad);border-color:var(--bad)}
+button:disabled{opacity:.5;cursor:default}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{font-size:22px}header small{color:var(--mut);display:block;font-family:"Instrument Sans";font-size:13px}
+select{font:inherit;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+main{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;padding:16px 22px;max-width:1320px;margin:0 auto}
+@media(max-width:900px){main{grid-template-columns:1fr;padding:12px}}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:0}
+.chat{height:calc(100vh - 110px);min-height:520px}
+@media(max-width:900px){.chat{height:70vh}}
+.orch{display:flex;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
+.node{display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);border-radius:20px;font-size:13px}
+.node.rm{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.working .dot{background:var(--acc);animation:pulse .8s infinite alternate}.done .dot{background:var(--ok)}.waiting .dot{background:var(--bad)}
+.node.working{border-color:var(--acc)}.node.waiting{border-color:var(--bad)}
+@keyframes pulse{to{opacity:.25}}@media(prefers-reduced-motion:reduce){.dot{animation:none!important}}
+.msgs{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.m{max-width:92%;padding:9px 13px;border-radius:12px;background:var(--bot)}
+.m.u{align-self:flex-end;background:var(--usr);color:var(--usrt)}
+.m.sys{align-self:center;background:none;color:var(--mut);font-size:13px;padding:0}
+.m .who{font-size:12px;color:var(--mut);margin-bottom:2px;font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 14px;border-top:1px solid var(--line)}
+.chips button{border-radius:20px;font-size:13px;background:var(--accbg);border-color:transparent}
+form.in{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line)}
+form.in input{flex:1;font:inherit;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.card{margin-top:8px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:12px}
+.card h3{font-size:16px;margin-bottom:6px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:8px 0}
+.kv div{background:var(--bg);border-radius:8px;padding:7px 9px}.kv b{display:block;font-size:17px;font-family:Fraunces,Georgia,serif}.kv span{font-size:12px;color:var(--mut)}
+.tag{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:600}
+.t-ok{background:var(--okbg);color:var(--ok)}.t-bad{background:var(--badbg);color:var(--bad)}.t-wait{background:var(--waitbg);color:var(--wait)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.row:first-of-type{border-top:0}.row small{color:var(--mut);display:block}
+.acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;border-radius:0;background:none;padding:12px 14px;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button.on{border-bottom-color:var(--acc);font-weight:600}
+.badge{background:var(--bad);color:#fff;border-radius:10px;font-size:11px;padding:1px 6px;margin-left:4px}
+.pane{padding:14px;overflow:auto;max-height:calc(100vh - 170px)}
+@media(max-width:900px){.pane{max-height:none}}
+.log{font-size:13px;border-left:3px solid var(--line);padding:2px 0 2px 10px;margin:0 0 9px}.log small{color:var(--mut)}
+.log.h{border-color:var(--acc)}.log.a{border-color:var(--ok)}
+.empty{color:var(--mut);padding:20px 0;text-align:center}
+.sp{height:8px;border-radius:4px;background:var(--acc);margin-top:4px}
+.hdr-r{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.mode{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.mode button{border:0;border-radius:0;padding:8px 14px;background:none}
+.mode button.on{background:var(--ink);color:var(--bg);font-weight:600}
+.agentm header{border-bottom:3px solid var(--acc)}
+.agentm main{grid-template-columns:1fr;max-width:980px}
+.agentm .chat{display:none}
+.custm .orch{display:none}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>USB Bank · AI Relationship Manager</h1><small id="sub"></small></div>
+  <div class="hdr-r"><div class="mode"><button id="mC">Customer mode</button><button id="mA">Agent mode</button></div><label>Demo customer <select id="custSel"></select></label></div>
+</header>
+<main>
+  <section class="box chat" aria-label="Customer conversation">
+    <div class="orch" id="orch"></div>
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <div class="chips" id="chips"></div>
+    <form class="in" id="form"><input id="txt" placeholder="Ask for a loan, KYC check, card offer or report a fraud…" autocomplete="off"><button class="p">Send</button></form>
+  </section>
+  <section class="box">
+    <div class="tabs" id="tabs"></div>
+    <div class="pane" id="pane"></div>
+  </section>
+</main>
+<script>
+const CUST={
+ priya:{name:'Priya Raman',city:'Chennai',seg:'Salaried · 6 yrs with us',income:95000,score:742,emi:12000,bal:184500,
+  docs:[['PAN','ABCPR1234K','Priya Raman','2031-12-31'],['Aadhaar','XXXX XXXX 4821','Priya Raman','2035-01-01'],['Address proof','Utility bill, Adyar','Priya Raman','2026-12-20']],
+  spend:[['Travel',28],['Dining',22],['Online shopping',31],['Fuel',9],['Utilities',10]],fraud:62,txnN:1},
+ arjun:{name:'Arjun Mehta',city:'Pune',seg:'Self-employed · 8 months with us',income:40000,score:648,emi:14000,bal:21300,
+  docs:[['PAN','XYZPM9876L','Arjun Mehta','2031-12-31'],['Aadhaar','XXXX XXXX 7710','Arjun M. Mehta','2035-01-01'],['Address proof','Rent agreement, Baner','Arjun Mehta','2026-03-31']],
+  spend:[['Online shopping',40],['Dining',25],['Fuel',15],['Utilities',20]],fraud:91,txnN:3}
+};
+const TX={priya:[['T1','Swiggy','₹642','Today 09:12','Domestic · UPI',5],['T2','NEXBET LTD, Malta','₹24,500','Today 02:14','International · Card not present',62],['T3','Amazon India','₹3,299','Yesterday 18:40','Domestic · Card',8],['T4','Amazon India','₹3,299','Yesterday 18:41','Domestic · Card · possible duplicate',55],['T5','Salary credit','+₹95,000','1 Nov','NEFT',0],['T6','Reliance Fresh','₹1,870','2 days ago','Domestic · Card',3],['T7','Indigo Airlines','₹8,420','4 days ago','Domestic · Card',4],['T8','HP Petrol Pump','₹2,100','5 days ago','Domestic · Card',2],['T9','TANGEDCO Bill','₹1,540','6 days ago','Bill pay',0],['T10','Home loan EMI','₹12,000','5 Nov','Auto debit',0]],
+ arjun:[['T1','CRYPTOX Singapore','₹48,000','Today 01:52','International · Card not present',91],['T2','CRYPTOX Singapore','₹48,000','Today 01:58','International · Card not present',93],['T3','CRYPTOX Singapore','₹35,000','Today 02:11','International · Card not present',95],['T4','Zomato','₹520','Today 08:30','Domestic · UPI',4],['T5','Client payment','+₹22,000','8 Nov','IMPS',0],['T6','Big Bazaar','₹2,640','3 days ago','Domestic · Card',3],['T7','Shell Fuel','₹3,000','4 days ago','Domestic · Card',2],['T8','Business loan EMI','₹14,000','5 Nov','Auto debit',0],['T9','MSEDCL Bill','₹1,980','6 days ago','Bill pay',0],['T10','Flipkart','₹4,750','1 week ago','Domestic · Card',7]]};
+Object.defineProperty(globalThis,'TXN',{get:()=>TX[cur]});
+const EXTRA={priya:{accts:[['Savings ••4821','₹1,84,500'],['Fixed deposit','₹5,00,000 · 7.1% · matures Mar 2027'],['Credit card ••9032','₹62,000 used of ₹2,00,000']],loans:[['Home loan','₹12,000 EMI · 14 of 240 paid · 8.6%']],bills:[['Electricity','₹1,540 · due 18 Nov'],['Credit card','₹8,420 · due 22 Nov']]},arjun:{accts:[['Savings ••7710','₹21,300'],['Current ••0042','₹64,800']],loans:[['Business loan','₹14,000 EMI · 22 of 48 paid · 16%']],bills:[['Electricity','₹1,980 · overdue 2 days'],['Insurance premium','₹4,200 · due 25 Nov']]}};
+function extras(){const x=EXTRA[cur],R=a=>a.map(r=>`<div class="row"><span>${r[0]}</span><span style="color:var(--mut);text-align:right">${r[1]}</span></div>`).join('');return `<h3 style="margin:14px 0 4px">Accounts</h3><div class="card">${R(x.accts)}</div><h3 style="margin:14px 0 4px">Existing loans</h3><div class="card">${R(x.loans)}</div><h3 style="margin:14px 0 4px">Upcoming bills</h3><div class="card">${R(x.bills)}</div>`}
+const AG={loan:'Loan agent',kyc:'KYC agent',card:'Card agent',dispute:'Dispute agent'};
+let cur='priya',mode='customer',tab='acct',st,pendingId=0;
+const $=id=>document.getElementById(id),inr=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function fresh(){st={status:{rm:'idle',loan:'idle',kyc:'idle',card:'idle',dispute:'idle'},audit:[],queue:[],hist:[],cardBlocked:false,loanState:null,kycState:null,disp:null,accepted:[],auditN:0,unread:0,dispState:null};$('msgs').innerHTML='';
+ const c=CUST[cur];say('bot',`Hello ${c.name.split(' ')[0]}, I’m your relationship manager. Tell me what you need and I’ll bring in the right specialist. Try a chip below.`);log('sys','Session started',`Customer ${c.name} authenticated (simulated)`);tab=mode==='agent'?'agents':'acct';applyMode();}
+function applyMode(){document.body.className=mode==='agent'?'agentm':'custm';$('mC').classList.toggle('on',mode==='customer');$('mA').classList.toggle('on',mode==='agent');$('sub').textContent=mode==='agent'?'Officer console: monitor agents, review escalations and approve sensitive actions.':'Chat with your relationship manager. We bring in the right specialist for you.';renderOrch();renderPane();}
+function log(by,ev,detail){st.audit.unshift({t:new Date().toLocaleTimeString('en-IN',{hour12:false}),by,ev,detail})}
+function say(w,html,who){const d=document.createElement('div');d.className='m '+(w==='user'?'u':w==='sys'?'sys':'');if(w==='bot')d.innerHTML=`<div class="who">${who||'Relationship manager'}</div>${html}`;else d.innerHTML=html;$('msgs').appendChild(d);$('msgs').scrollTop=1e9;if(w!=='sys')st.hist.push({w,txt:d.textContent.slice(0,90)});return d}
+function setS(k,v){st.status[k]=v;renderOrch();if(tab==='agents')renderPane()}
+function renderOrch(){const lbl={idle:'idle',working:'working',done:'done',waiting:'awaiting human'};$('orch').innerHTML=`<div class="node rm ${st.status.rm}"><span class="dot"></span>AI Relationship Manager</div>`+Object.keys(AG).map(k=>`<div class="node ${st.status[k]}"><span class="dot"></span>${AG[k]}: ${lbl[st.status[k]]}</div>`).join('')}
+function intent(t){t=t.toLowerCase();if(/fraud|scam|phish|hack|spoof|vishing|dispute|unauthori[sz]ed|stolen|lost|theft|duplicate|twice|double|refund|charge ?back|not me|(did ?n.t|did not) (make|do|authori)|(don.t|do not) recogni|suspicious|unknown (charge|debit|transaction)|wrong amount|overcharg|block|otp|cyber|transaction|charged|debited|deducted|money (is )?(missing|gone)/.test(t))return'dispute';if(/loan|emi|borrow|credit line/.test(t))return'loan';if(/kyc|\bpan\b|aadhaar|document|address|verify/.test(t))return'kyc';if(/card|offer|invest|insurance|recommend|reward|\bsip\b|deposit/.test(t))return'card';return null}
+async function route(k,text){
+ const names={loan:'Personal loan',kyc:'KYC & documents',card:'Cards & offers',dispute:'Dispute & fraud'};
+ setS('rm','working');log('RM','Intent detected',`“${text}” → ${names[k]} (confidence ${88+Math.floor(Math.random()*10)}%)`);
+ await sleep(500);log('RM','Routed',`Handing over to ${AG[k]} with customer context`);setS('rm','done');setS(k,'working');
+ const typing=say('bot','<i>Checking with the '+AG[k].toLowerCase()+'…</i>');await sleep(900);typing.remove();st.hist.pop();
+ ({loan,kyc,card,dispute})[k](text);
+}
+/* ---------- Loan ---------- */
+function loanCalc(amt,ten){const c=CUST[cur],r=(c.score>=750?10.5:c.score>=700?12.5:c.score>=650?15.5:18)/1200;const maxEmi=c.income*.5-c.emi;const elig=maxEmi*(1-Math.pow(1+r,-60))/r;const emi=amt*r/(1-Math.pow(1+r,-ten));return{rate:r*1200,elig,emi,maxEmi}}
+function loan(){const c=CUST[cur],x=loanCalc(500000,36);
+ const d=say('bot',`<b>Loan check done.</b> Income ${inr(c.income)}/month, credit score ${c.score}, existing EMIs ${inr(c.emi)}.
+ <div class="card"><h3>Personal loan offer</h3><div class="kv"><div><b id="lElig">${inr(Math.floor(x.elig/1e4)*1e4)}</b><span>Eligible amount</span></div><div><b id="lRate">${x.rate.toFixed(1)}%</b><span>Interest rate</span></div><div><b id="lEmi">${inr(x.emi)}</b><span>Monthly EMI</span></div></div>
+ <label>Amount: <b id="lAmtV">₹5,00,000</b><input type="range" id="lAmt" min="100000" max="1500000" step="50000" value="500000"></label>
+ <label>Tenure: <b id="lTenV">36 months</b><input type="range" id="lTen" min="12" max="60" step="12" value="36"></label>
+ <div class="acts"><button class="p" id="lGo">Submit application</button></div><div id="lOut"></div></div>`,'Loan agent');
+ const upd=()=>{const a=+d.querySelector('#lAmt').value,t=+d.querySelector('#lTen').value,y=loanCalc(a,t);d.querySelector('#lAmtV').textContent=inr(a);d.querySelector('#lTenV').textContent=t+' months';d.querySelector('#lEmi').textContent=inr(y.emi)};
+ d.querySelector('#lAmt').oninput=upd;d.querySelector('#lTen').oninput=upd;
+ d.querySelector('#lGo').onclick=async e=>{const b=e.target;b.disabled=true;const a=+d.querySelector('#lAmt').value,t=+d.querySelector('#lTen').value,y=loanCalc(a,t);const out=d.querySelector('#lOut');
+  out.innerHTML='<p><i>Submitting and running policy checks…</i></p>';log('Loan agent','Application submitted',`${inr(a)} for ${t} months, EMI ${inr(y.emi)}`);await sleep(1000);
+  const why=[];if(c.score<680)why.push('credit score below 680');if(a>Math.floor(y.elig/1e4)*1e4)why.push('amount above eligible limit');if(y.emi+c.emi>c.income*.5)why.push('total EMIs above 50% of income');
+  if(!why.length){out.innerHTML='<p><span class="tag t-ok">Approved in principle</span> Reference LN-'+(48100+st.auditN++)+'. Funds release after e-sign.</p>';st.loanState='approved';log('Loan agent','Auto-approved','Within policy');setS('loan','done');say('bot','Your loan is approved in principle. Anything else I can help with?')}
+  else{out.innerHTML='<p><span class="tag t-wait">Sent to credit officer</span> Your request needs a manual review.</p>';st.loanState='pending';enqueue('Credit officer','Loan exception',`${CUST[cur].name} · ${inr(a)} / ${t} mo · ${why.join('; ')}`,'loan','Your loan application was approved by our credit officer with a revised offer. Reference LN-'+(48100+st.auditN++)+'.','Your loan application could not be approved right now. A credit officer will call you with options.');setS('loan','waiting');say('bot','I’ve routed this to a credit officer because it needs a human decision. I’ll update you here when they respond.')}}}
+/* ---------- KYC ---------- */
+function kycEval(){const c=CUST[cur];return c.docs.map(d=>{const issues=[];if(d[2]!==c.name)issues.push(`Name “${d[2]}” does not match “${c.name}”`);if(new Date(d[3])<new Date('2026-11-10'))issues.push('Document expired on '+d[3]);else if(new Date(d[3])<new Date('2027-01-31')&&d[0]==='Address proof')issues.push('Expires soon ('+d[3]+')');return{d,issues,ok:!issues.length}})}
+function kyc(){const r=kycEval(),bad=r.filter(x=>!x.ok);
+ const d=say('bot',`<b>Validation complete.</b> ${r.length-bad.length} of ${r.length} documents verified.<div class="card"><h3>Document verification</h3>${r.map(x=>`<div class="row"><div>${x.d[0]}<small>${x.d[1]}</small>${x.issues.map(i=>`<small style="color:var(--bad)">${i}</small>`).join('')}</div><span class="tag ${x.ok?'t-ok':'t-bad'}">${x.ok?'Verified':'Failed'}</span></div>`).join('')}
+ <div class="acts">${bad.length?'<button class="p" id="kEsc">Escalate to compliance officer</button>':'<span class="tag t-ok">KYC fully verified</span>'}</div></div>`,'KYC agent');
+ log('KYC agent','Documents validated',`${r.length-bad.length} verified, ${bad.length} failed`);
+ if(!bad.length){st.kycState='verified';setS('kyc','done')}else{st.kycState='failed';d.querySelector('#kEsc').onclick=e=>{e.target.disabled=true;enqueue('Compliance officer','KYC failure',`${CUST[cur].name} · ${bad.map(x=>x.d[0]+': '+x.issues[0]).join(' | ')}`,'kyc','Our compliance officer cleared your KYC after review. You are good to go.','Compliance needs a corrected document. Please upload a matching proof at your branch or in the app.');setS('kyc','waiting');say('bot','Escalated to a compliance officer. Meanwhile, you can re-upload corrected documents.')};setS('kyc','waiting')}}
+/* ---------- Cards ---------- */
+const CARDS=[['Voyager Plus','Travel',['5X points on flights and hotels','4 lounge visits per year'],'₹2,999/yr','₹3,00,000',720,'Travel'],['Everyday Cashback','Online shopping',['5% cashback on top shopping sites','1% on everything else'],'₹499/yr','₹1,50,000',680,'Online shopping'],['Prime Dining','Dining',['20% off at 2,000+ partner restaurants','Complimentary Swiggy One'],'₹999/yr','₹2,00,000',700,'Dining'],['Fuel Saver','Fuel',['4% fuel surcharge waiver','5X points at fuel stations'],'₹499/yr','₹1,00,000',640,'Fuel'],['Starter Secure','Entry level',['Secured against FD','Builds credit history'],'Free','₹40,000',0,'']];
+function card(){const c=CUST[cur];const picks=CARDS.filter(k=>c.score>=k[5]).slice(0,3);const top=c.spend[0];
+ const d=say('bot',`<b>I looked at your last 90 days.</b> You spend most on ${[...c.spend].sort((a,b)=>b[1]-a[1])[0][0].toLowerCase()}.<div class="card"><h3>Spending profile</h3>${c.spend.map(s=>`<small>${s[0]} ${s[1]}%</small><div class="sp" style="width:${s[1]*2.2}%"></div>`).join('')}</div>
+ ${picks.map((k,i)=>`<div class="card"><h3>${k[0]} ${i==0?'<span class="tag t-ok">Best match</span>':''}</h3><div class="kv"><div><b>${k[3]}</b><span>Annual fee</span></div><div><b>${k[4]}</b><span>Limit</span></div><div><b>Pre-approved</b><span>Eligibility (score ${c.score})</span></div></div><ul style="margin:4px 0 0;padding-left:18px">${k[2].map(b=>`<li>${b}</li>`).join('')}</ul><div class="acts"><button class="p acc" data-n="${k[0]} credit card">Accept card</button></div></div>`).join('')}
+ <div class="card"><h3>Personal offers</h3>${[['Term insurance cover ₹1 Cr','From ₹690/month'],['Monthly SIP in index fund','Start with ₹'+(c.income>60000?'5,000':'1,000')],['Top-up loan at preferred rate','Subject to credit check'],['Travel insurance','₹899 for 12 months'],['Fixed deposit special rate','7.4% for 444 days']].map(o=>`<div class="row"><div>${o[0]}<small>${o[1]}</small></div><button class="acc" data-n="${o[0]}">Accept</button></div>`).join('')}</div>`,'Card agent');
+ log('Card agent','Recommendations generated',picks.map(p=>p[0]).join(', '));setS('card','done');
+ d.querySelectorAll('.acc').forEach(b=>b.onclick=()=>{b.disabled=true;b.textContent='Accepted';st.accepted.push(b.dataset.n);log('Card agent','Customer accepted',b.dataset.n);say('bot',`Done. I’ve recorded your interest in <b>${b.dataset.n}</b>. A confirmation is on its way.`,'Card agent');renderPane()})}
+/* ---------- Dispute ---------- */
+function dispute(text){text=(text||'').toLowerCase();const c=CUST[cur],list=TXN.filter(t=>t[2][0]!=='+').sort((a,b)=>b[5]-a[5]).slice(0,8);
+ const V=[[/lost|stolen|missing|misplac|theft/,'Card lost or stolen','I’m sorry about that. I’ve blocked your card right away so nobody can use it. Now tell me which charge, if any, looks wrong.'],[/twice|duplicate|double|again/,'Charged twice','That happens with retries and terminal errors. Select the repeated charge and I’ll raise a duplicate-charge dispute.'],[/wrong amount|overcharg|incorrect|more than|less than/,'Amount is wrong','Select the charge with the wrong amount and I’ll dispute the difference with the merchant.'],[/otp|phish|scam|vishing|spoof|hack|link|call|cyber|password|pin/,'I did not make this transaction','This sounds like a scam. Never share your OTP, PIN or CVV with anyone, including bank staff. I’ve blocked your card as a precaution. Select any charge you don’t recognise and I’ll register it. You can also report it to the National Cyber Crime Helpline on 1930 or at cybercrime.gov.in.'],[/refund|money back|charge ?back/,'I did not make this transaction','I can raise a refund claim. Select the charge and I’ll register it. Refunds usually take 5 to 10 working days.'],[/upi|gpay|phonepe|paytm/,'I did not make this transaction','I can help with UPI payments too. Select the payment you don’t recognise.']];
+ const v=V.find(x=>x[0].test(text)),pre=v?v[2]:'Sorry to hear that. Pick the charge you don’t recognise and tell me why.',rs=v?v[1]:'I did not make this transaction';
+ if(v&&(v[1]==='Card lost or stolen'||/otp|phish|scam|vishing/.test(text))&&!st.cardBlocked){st.cardBlocked=true;log('Dispute agent','Card blocked (precaution)','Debit card ending 4821 blocked (simulated)');renderPane()}
+ let pi=list.findIndex(t=>text.includes(t[1].toLowerCase().split(/[ ,]/)[0])||text.replace(/[, ]/g,'').includes(t[2].replace(/[₹,]/g,'')));if(pi<0&&v&&v[1]==='Charged twice')pi=list.findIndex(t=>/duplicate/.test(t[4]));if(pi<0)pi=0;
+ const d=say('bot',`${pre}<div class="card"><h3>Select the transaction</h3>${list.map((t,i)=>`<label class="row" style="cursor:pointer"><span><input type="radio" name="tx" value="${i}"${i===pi?' checked':''}> ${t[1]}<small>${t[3]} · ${t[4]}</small></span><span><b>${t[2]}</b>${t[5]>=50?' <span class="tag t-bad">Looks unusual</span>':''}</span></label>`).join('')}<label style="display:block;margin-top:8px">Reason <select id="dRsn">${['I did not make this transaction','Charged twice','Amount is wrong','Card lost or stolen'].map(o=>`<option${o===rs?' selected':''}>${o}</option>`).join('')}</select></label><div class="acts"><button class="p" id="dGo">Report this transaction</button></div></div>`,'Dispute agent');
+ d.querySelector('#dGo').onclick=e=>{e.target.disabled=true;const t=list[+d.querySelector('input[name=tx]:checked').value],r=d.querySelector('#dRsn').value;c.fraud=t[5];say('user',`Reporting ${t[1]} ${t[2]}: ${r}`);disputeFlow([t[0],t[1],t[2],t[3],t[4]+' · '+r,t[5]])}}
+function disputeFlow(t){
+ const d=say('bot',`<b>Found it.</b> I matched your report to this charge:<div class="card"><h3>${t[1]}</h3><div class="kv"><div><b>${t[2]}</b><span>Amount</span></div><div><b>${t[3]}</b><span>When</span></div><div><b>Flagged</b><span>Unusual activity</span></div></div><small>${t[4]}</small>
+ <div class="acts"><button class="p" id="dBlk">Block card</button><button id="dReg" disabled>Register dispute</button></div><div id="dOut"></div></div>`,'Dispute agent');
+ log('Dispute agent','Transaction identified',`${t[1]} ${t[2]} (risk ${CUST[cur].fraud})`);
+ d.querySelector('#dBlk').onclick=async e=>{e.target.disabled=true;st.cardBlocked=true;log('Dispute agent','Card blocked','Debit card ending 4821 blocked (simulated)');d.querySelector('#dOut').innerHTML='<p><span class="tag t-ok">Card ending 4821 blocked</span></p>';d.querySelector('#dReg').disabled=false;renderPane()};
+ d.querySelector('#dReg').onclick=async e=>{e.target.disabled=true;const hi=CUST[cur].fraud>=80,id='DSP-'+(7200+st.auditN++);log('Dispute agent','Dispute registered',id);st.dispState=hi?'review':'registered';
+  d.querySelector('#dOut').innerHTML+=`<p><span class="tag t-ok">Dispute ${id} registered</span></p>`;
+  if(hi){d.querySelector('#dOut').innerHTML+='<p><span class="tag t-wait">Sent to our fraud team</span> They will review this with priority.</p>';enqueue('Fraud team','Suspicious transaction',`${CUST[cur].name} · ${t[1]} ${t[2]} · risk ${t[5]}/100 · ${t[4]} · ${id}`,'dispute','Our fraud team confirmed the fraud. Your money will be credited within 5 working days.','Fraud team needs more details. A specialist will call you shortly.');setS('dispute','waiting');say('bot','This looks like a fraud pattern, so the fraud team is reviewing it now.')}
+  else{setS('dispute','done');say('bot','Dispute registered. Provisional credit is expected within 10 working days.')}}}
+/* ---------- Human approvals ---------- */
+function enqueue(team,type,detail,agent,okMsg,noMsg){const q={id:'AP-'+(100+ ++pendingId),team,type,detail,agent,okMsg,noMsg,status:'pending'};st.queue.unshift(q);log('RM','Escalated to human',`${type} → ${team} (${q.id})`);renderTabs();if(tab==='approvals')renderPane()}
+function decide(id,ok){const q=st.queue.find(x=>x.id===id);q.status=ok?'approved':'rejected';if(q.agent==='loan')st.loanState=ok?'approved':'declined';if(q.agent==='kyc')st.kycState=ok?'verified':'failed';if(q.agent==='dispute')st.dispState=ok?'confirmed':'declined';if(mode==='agent')st.unread++;log(q.team,ok?'Approved':'Rejected',q.id+' · '+q.type);setS(q.agent,ok?'done':'idle');say('bot',ok?q.okMsg:q.noMsg,q.team+' (human)');renderTabs();renderPane()}
+/* ---------- Right pane ---------- */
+function renderTabs(){const n=st.queue.filter(q=>q.status==='pending').length;$('mC').innerHTML='Customer mode'+(st.unread&&mode==='agent'?`<span class="badge">${st.unread}</span>`:'');$('tabs').innerHTML=(mode==='agent'?[['agents','Agents'],['c360','Customer 360'],['approvals','Human approvals'+(n?`<span class="badge">${n}</span>`:'')],['audit','Audit trail']]:[['acct','My account'],['mine','My requests']]).map(t=>`<button class="${tab===t[0]?'on':''}" data-t="${t[0]}">${t[1]}</button>`).join('');$('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;renderTabs();renderPane()})}
+function renderPane(){renderTabs();const c=CUST[cur],p=$('pane');
+ if(tab==='acct')return custAcct(p,c);if(tab==='mine')return custMine(p,c);
+ if(tab==='agents'){const info={loan:['Reads income, bureau score and obligations. Calculates eligibility and EMI.','Exceptions → credit officer'],kyc:['Validates PAN, Aadhaar and address proof. Flags name mismatch and expiry.','Failures → compliance officer'],card:['Reads spending and score. Recommends cards, insurance and investments.','Customer accepts or declines'],dispute:['Finds the transaction, blocks the card, registers the dispute.','High risk → fraud team']};
+  p.innerHTML=`<div class="kv"><div><b>${st.queue.filter(q=>q.status==='pending').length}</b><span>Awaiting approval</span></div><div><b>${st.queue.length}</b><span>Escalated cases</span></div><div><b>${st.audit.length}</b><span>Audit events</span></div></div>`+Object.keys(AG).map(k=>`<div class="card" style="margin:0 0 10px"><div class="row" style="border:0;padding:0"><h3>${AG[k]}</h3><span class="tag ${{idle:'',done:'t-ok',working:'t-wait',waiting:'t-bad'}[st.status[k]]}">${st.status[k]==='waiting'?'awaiting human':st.status[k]}</span></div><p style="margin:6px 0">${info[k][0]}</p><small style="color:var(--mut)">Human gate: ${info[k][1]}</small></div>`).join('')}
+ else if(tab==='c360'){const ls={approved:['t-ok','Approved'],pending:['t-wait','With credit officer']}[st.loanState]||['','No application'],ks={verified:['t-ok','Verified'],failed:['t-bad','Failed']}[st.kycState]||['','Not checked'];
+  p.innerHTML=`<h2>${c.name}</h2><small style="color:var(--mut)">${c.city} · ${c.seg}</small><div class="kv"><div><b>${inr(c.income)}</b><span>Monthly income</span></div><div><b>${c.score}</b><span>Credit score</span></div><div><b>${inr(c.emi)}</b><span>Existing EMIs</span></div><div><b>${inr(c.bal)}</b><span>Account balance</span></div></div>
+  <div class="card"><div class="row"><span>Loan application</span><span class="tag ${ls[0]}">${ls[1]}</span></div><div class="row"><span>KYC status</span><span class="tag ${ks[0]}">${ks[1]}</span></div><div class="row"><span>Debit card ending 4821</span><span class="tag ${st.cardBlocked?'t-bad':'t-ok'}">${st.cardBlocked?'Blocked':'Active'}</span></div><div class="row"><span>Accepted offers</span><span>${st.accepted.length?st.accepted.join(', '):'None yet'}</span></div></div>
+  <h3 style="margin:14px 0 4px">Recent transactions</h3><div class="card">${TXN.map(t=>`<div class="row"><div>${t[1]}<small>${t[3]} · ${t[4]}</small></div><b>${t[2]}</b></div>`).join('')}</div>
+  ${extras()}<h3 style="margin:14px 0 4px">Fraud monitor</h3><div class="card">${TXN.filter(t=>t[5]>=50).map(t=>`<div class="row"><div>${t[1]}<small>${t[3]} · ${t[4]}</small></div><span class="tag ${t[5]>=80?'t-bad':'t-wait'}">Risk ${t[5]}</span></div>`).join('')||'<div class="empty">No alerts.</div>'}</div><h3 style="margin:14px 0 4px">Interaction history</h3>${st.hist.length?st.hist.slice(-6).map(h=>`<div class="log ${h.w==='user'?'h':''}">${h.w==='user'?'Customer':'RM'}: ${h.txt}</div>`).join(''):'<div class="empty">No messages yet.</div>'}`}
+ else if(tab==='approvals'){p.innerHTML=st.queue.length?st.queue.map(q=>`<div class="card" style="margin:0 0 10px"><div class="row" style="border:0;padding:0"><h3>${q.type}</h3><span class="tag ${{pending:'t-wait',approved:'t-ok',rejected:'t-bad'}[q.status]}">${q.status}</span></div><small style="color:var(--mut)">${q.id} · Queue: ${q.team}</small><p style="margin:6px 0">${q.detail}</p>${q.status==='pending'?`<div class="acts"><button class="ok" data-a="${q.id}">Approve</button><button class="no" data-r="${q.id}">Reject</button></div>`:''}</div>`).join(''):'<div class="empty">Nothing waiting. Switch to Customer mode, pick Arjun Mehta and request a loan, KYC check or fraud report.</div>';
+  p.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>decide(b.dataset.a,true));p.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>decide(b.dataset.r,false))}
+ else{p.innerHTML=st.audit.map(a=>`<div class="log ${a.by.match(/officer|team/)?'h':'a'}"><b>${a.ev}</b> <small>· ${a.by} · ${a.t}</small><br>${a.detail}</div>`).join('')}}
+/* ---------- Customer views ---------- */
+function custAcct(p,c){p.innerHTML=`<h2>Hi, ${c.name.split(' ')[0]}</h2><small style="color:var(--mut)">${c.city} · ${c.seg}</small><div class="kv"><div><b>${inr(c.bal)}</b><span>Savings balance</span></div><div><b>${st.cardBlocked?'Blocked':'Active'}</b><span>Debit card ending 4821</span></div><div><b>${inr(c.emi)}</b><span>Monthly EMIs</span></div></div>${extras()}<h3 style="margin:14px 0 4px">Recent transactions</h3><div class="card">${TXN.map(t=>`<div class="row"><div>${t[1]}<small>${t[3]} · ${t[4]}</small></div><b>${t[2]}</b></div>`).join('')}</div>`}
+function custMine(p,c){const m=(k,M,none)=>{const v=M[k];return v?`<span class="tag ${v[0]}">${v[1]}</span>`:`<span style="color:var(--mut)">${none}</span>`};
+ const L={approved:['t-ok','Approved'],pending:['t-wait','Under review'],declined:['t-bad','Declined']},K={verified:['t-ok','Verified'],failed:['t-bad','Action needed']},D={registered:['t-ok','Dispute registered'],review:['t-wait','Under review'],confirmed:['t-ok','Refund on the way'],declined:['t-bad','More details needed']};
+ p.innerHTML=`<h2>My requests</h2><div class="card"><div class="row"><span>Personal loan</span>${m(st.loanState,L,'No application')}</div><div class="row"><span>KYC documents</span>${m(st.kycState,K,'Not checked')}</div><div class="row"><span>Card dispute</span>${m(st.dispState,D,'None')}</div><div class="row"><span>Offers accepted</span><span>${st.accepted.length?st.accepted.join(', '):'None yet'}</span></div></div><h3 style="margin:14px 0 4px">Recent conversation</h3>${st.hist.length?st.hist.slice(-6).map(h=>`<div class="log ${h.w==='user'?'h':''}">${h.w==='user'?'You':'Bank'}: ${h.txt}</div>`).join(''):'<div class="empty">No messages yet.</div>'}`}
+$('mC').onclick=()=>{mode='customer';st.unread=0;tab='acct';applyMode()};$('mA').onclick=()=>{mode='agent';tab='agents';applyMode()};
+/* ---------- Wiring ---------- */
+async function handle(text){if(!text.trim())return;say('user',text);log('Customer','Message',text);const k=intent(text);
+ if(!k){log('RM','Intent unclear','Asked customer to clarify');say('bot','I can help with a <b>personal loan</b>, <b>KYC documents</b>, <b>cards and offers</b>, or a <b>disputed transaction</b>. Which one? Try “report fraud”, “my card is lost”, “charged twice at Amazon” or “someone asked for my OTP”.');return}
+ await route(k,text)}
+$('form').onsubmit=e=>{e.preventDefault();const v=$('txt').value;$('txt').value='';handle(v)};
+$('chips').innerHTML=[['I need a personal loan','Apply for a loan'],['Please verify my KYC documents','Check my KYC'],['Recommend a credit card and offers for me','Card & offers'],['I see an unauthorized transaction on my card','Report fraud'],['My card is lost or stolen','Lost card'],['I was charged twice at Amazon','Duplicate charge'],['Someone called and asked for my OTP','Scam call']].map(c=>`<button data-q="${c[0]}">${c[1]}</button>`).join('');
+$('chips').querySelectorAll('button').forEach(b=>b.onclick=()=>handle(b.dataset.q));
+$('custSel').innerHTML=Object.keys(CUST).map(k=>`<option value="${k}">${CUST[k].name} · ${k==='priya'?'low risk':'high risk'}</option>`).join('');
+$('custSel').onchange=e=>{cur=e.target.value;fresh()};
+fresh();
+</script>
+</body>
+</html>
